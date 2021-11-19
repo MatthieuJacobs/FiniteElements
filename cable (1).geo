@@ -80,6 +80,10 @@ BooleanFragments{
 
   }; Delete;
 }{}
+// above you've defined the sur_tot1 and 2. so let's give them an unused number
+//now you can correctly assign your name  
+sur_tot1 = 12;
+sur_tot2 = 13;
 
 sur_wire() = {1,2,3};
 sur_sc_in() = {35,36,37};
