@@ -81,7 +81,7 @@ BooleanFragments{
   }; Delete;
 }{}
 // above you've defined the sur_tot1 and 2. so let's give them an unused number
-//now you can correctly assign your name  
+//now you can correctly assign your name
 sur_tot1 = 12;
 sur_tot2 = 13;
 
@@ -92,6 +92,25 @@ sur_semi_out() = {41,42,43};
 sur_al() = {44,45,46};
 surf_air_in() = {47,48};
 sur_steel_armour = 49;
+sur_xlpe_out = 50;
 sur_air = 51;
 sur_steelpipe = 52;
 sur_polycover = 53;
+
+
+sur_ps_aux() = {};
+sur_ps_aux(0) = news; Disk(news) = {x0,y0,0.,R+t_poly_sheet};
+sur_ps_aux(1) = news; Disk(news) = {x1,y1,0.,R+t_poly_sheet};
+sur_ps_aux(2) = news; Disk(news) = {x2,y2,0.,R+t_poly_sheet};
+
+// Group surfaces per conductor
+sur_wire_0() = {sur_wire(0), sur_sc_in(0), sur_xlpe(0), sur_semi_out(0),sur_al(0)};
+sur_wire_1() = {sur_wire(1), sur_sc_in(1), sur_xlpe(1), sur_semi_out(1),sur_al(1)};
+sur_wire_2() = {sur_wire(2), sur_sc_in(2), sur_xlpe(2), sur_semi_out(2),sur_al(2)};
+sur_ps2(0) = news; BooleanDifference(news) = {Surface{sur_ps_aux(0)}; Delete};
+sur_ps2(1) = news; BooleanDifference(news) = {Surface{sur_ps_aux(1)}; Delete};
+sur_ps2(2) = news; BooleanDifference(news) = {Surface{sur_ps_aux(2)}; Delete};
+
+sur_air_in() = BooleanDifference{Surface{surf_air_in(1)}, Delete;} {Surface{sur_tri}};
+surf_air_in_air()-=sur_air(1);
+sur_ps_exact() = BooleanFragments{Surface{sur_ps2(),sur_xlpe_out}; Delete; }{}
