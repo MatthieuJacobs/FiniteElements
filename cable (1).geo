@@ -10,7 +10,7 @@ Mesh.ElementOrder = 1; // Can also be 2
 SetFactory("OpenCASCADE");
 
 x0 = 0; y0 = 0;
-x1 = d_cu+2*t_sc_in+2*t_sc_out+2*t_xlpe+2*t_poly_sheet+2*t_steel_armour+dis; y1 = 0;
+x1 = d_cu+2*t_sc_in+2*t_sc_out+2*t_xlpe+2*t_poly_sheet+2*t_al+dis; y1 = 0;
 x2 = -x1; y2 = 0;
 
 sur_wire = {};
