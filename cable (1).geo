@@ -122,3 +122,28 @@ sur_ps2(2) = news; BooleanDifference(news) = {Surface{sur_ps_aux(2)}; Delete;}{S
 //sur_air_in() = BooleanDifference{Surface{surf_air_in(1)}, Delete;} {Surface{sur_tri}};
 //surf_air_in_air()-=sur_air(1);
 sur_ps_exact() = BooleanFragments{Surface{sur_ps2(),sur_ps}; Delete; }{};
+
+//-- Around the cable --
+all_sur_cable = Surface{:};
+
+//electromagnetic analysis domain
+sur_EMdom = news; Disk(news) = {0, 0, 0., dinf/2};
+BooleanDifference(news) = { Surface{sur_EMdom}; Delete; }{ Surface{all_sur_cable()};};
+sur_EMdom = news - 1;
+
+//thermal analysis domain
+//Rectangle: the 3 first expressions define the lower-left corner; the next 2 define the width and height.
+sur_soil = news; Rectangle(news) = {-dinf_th, -dinf_th, 0, 2*dinf_th, dinf_th + depth_cable};
+BooleanDifference(news) = {Surface{sur_soil}; Delete;}{Surface{all_sur_cable()};};
+sur_soil = news - 1;
+
+sur_airout = news; Rectangle(news) = {-dinf_th, depth_cable, 0, 2*dinf_th, dinf_th_air};
+
+all_sur() = Surface{:};
+BooleanFragments{Surface{all_sur()}; Delete;}{}
+//Returns the boundary of the elementary entities, combined as if a single entity, in transform-list
+//bnd() = CombinedBoundary{Surface{all_sur()};};
+//Printf("",bnd());
+
+//bnd_EMdom() = CombinedBoundary{Surface{sur_EMdom};};
+//Printf("",bnd_EMdom());
