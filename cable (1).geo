@@ -140,10 +140,12 @@ sur_soil = news - 1;
 sur_airout = news; Rectangle(news) = {-dinf_th, depth_cable, 0, 2*dinf_th, dinf_th_air};
 
 all_sur() = Surface{:};
-BooleanFragments{Surface{all_sur()}; Delete;}{}
+all_sur_after_frag()=BooleanFragments{Surface{all_sur()}; Delete;}{ };
 //Returns the boundary of the elementary entities, combined as if a single entity, in transform-list
-//bnd() = CombinedBoundary{Surface{all_sur()};};
-//Printf("",bnd());
+bnd() = CombinedBoundary{Surface{all_sur_after_frag()};};
+Printf("",bnd());
 
-//bnd_EMdom() = CombinedBoundary{Surface{sur_EMdom};};
-//Printf("",bnd_EMdom());
+sur_EMdom = {68,69};
+
+bnd_EMdom() = CombinedBoundary{Surface{sur_EMdom};};
+Printf("",bnd_EMdom());
