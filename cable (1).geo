@@ -145,5 +145,7 @@ all_sur_after_frag()=BooleanFragments{Surface{all_sur()}; Delete;}{ };
 bnd() = CombinedBoundary{Surface{all_sur_after_frag()};};
 Printf("",bnd());
 
+sur_EMdom = {68,69};
+
 bnd_EMdom() = CombinedBoundary{Surface{sur_EMdom};};
 Printf("",bnd_EMdom());
