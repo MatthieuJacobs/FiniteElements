@@ -52,6 +52,35 @@ dis = 70*mm; //distance between center of conductors
 //t_ag = 6*mm; ??
 d_tot = 628.2*mm; //total diameter
 dinf = 5*d_tot; //electromagnetic domain
-depth_cable = 1.5; //[m] laying depth of the cable
+depth_cable = 1.8; //[m] laying depth of the cable
 dinf_th = 12; //thermal analysis
 dinf_th_air = 12 - depth_cable;
+
+// Mesh
+DefineConstant[ s = {1., Name "Parameters/Global mesh size factor"}] ;
+
+// Define physical regions
+AIR_IN = 900;
+AIR_OUT = 901;
+
+WIRE = 1000;
+
+SEMI_IN = 2000;
+XLPE = 3000; DEFECT = 3001;
+SEMI_OUT = 4000;
+APL = 5000;
+POLYETHYLENE_SHEATH = 6000;
+
+STEEL_ARMOUR = 7000;
+STEEL_PIPE = 8000;
+
+POLYETHYLENE_COVER = 9000;
+SOIL_EM = 10000;
+SOIL_TH = 11000;
+
+OUTBND_EM = 1111;
+OUTBND_TH = 2222;
+
+INTERFACE_AIR_SOIL = 3333;
+
+NbWires = 3;
