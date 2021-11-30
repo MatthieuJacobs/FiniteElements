@@ -25,6 +25,7 @@ sig_poly = 1.0e-18;
 sig_sc = 2;
 sig_xlpe = 1.0e-18;
 sig_soil = 28;
+sig_al = 36.9e6;
 
 // Thermal Conductivity
 
@@ -34,6 +35,16 @@ kappa_poly = 0.46;
 kappa_sc = 10;
 kappa_xlpe = 0.46;
 kappa_soil = 0.4;
+kappa_al = 0.16;
+kappa_air = 0.024;
+
+// alpha values [1/K]
+alpha_cu = 0.00386;
+alpha_al = 0.00390;
+
+// Thermal Data
+Tref = 303; //reference temperature
+Tamb = 293; //ambient temperature
 
 // Geometrical Data
 

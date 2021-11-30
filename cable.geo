@@ -195,6 +195,11 @@ Physical Surface("SOIL (EM)", SOIL_EM) = sur_EMdom;
 Physical Surface("SOIL_TH", SOIL_TH) = sur_soil;
 Physical Surface("Air above soil", AIR_OUT) = sur_airout;
 
+/* If(Flag_defect_in_XLPE)
+  Physical Surface("Defect in XLPE (Phase 2)", DEFECT) = sur_defect;
+  Color Cyan {Surface{sur_defect};}
+EndIf */
+
 Physical Line("Outer boundary (EM)", OUTBND_EM) = bnd_EMdom(1);
 Physical Line("Outer boundary (TH)", OUTBND_TH) = bnd();
 Physical Line("Air/Soil interface", INTERFACE_AIR_SOIL) = 159;
