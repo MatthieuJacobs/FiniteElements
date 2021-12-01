@@ -1,5 +1,16 @@
 Include "cable_data.geo";
 
+DefineConstant[
+  Flag_Analysis = {0,
+    Choices{
+      0="Electric",
+      1="Magnetic",
+      2="Magneto-thermal (linear)",
+      3="Magneto-thermal (nonlinear)"
+    },
+    Name "{00Parameters/00Type of analysis", Highlight "Blue"}
+];
+
 Group{
   AirInCable = Region[{AIR_IN}];
   AirAboveSoil = Region[{AIR_OUT}];
@@ -36,21 +47,23 @@ Group{
 
   // Magnetodynamics
   SurfaceGe0 = Region[{OUTBND_EM}];
-  DomainCC_Mag = Region[{AirEM, Inds}];
+  DomainCC_Mag = Region[{AirEM, Inds}]; //capacitor
   DomainCC_Mag += Region[{SemiconductorIn,SemiconductorOut, XLPE, Polyethylene}];
-  DomainC_Mag = Region[{Steel,APLSheath}];
+  DomainC_Mag = Region[{Steel,APLSheath}]; //conductor
 
-  DomainS0_Mag = Region[{}];  // If imposing source with js0[]
-  DomainS_Mag = Region[{Inds}]; // If using Current_2D, it allows accouting ...
+  DomainS0_Mag = Region[{}];  // If imposing source with js0[] //initial source
+  DomainS_Mag = Region[{Inds}]; // If using Current_2D, it allows accouting ... //other sources
 
-  DomainCWithI_Mag = Region[{}];
-  Domain_Mag = Region[{DomainCC_Mag, DomainC_Mag}];
+  DomainCWithI_Mag = Region[{}]; //inductors
+  Domain_Mag = Region[{DomainCC_Mag, DomainC_Mag}]; //magnetic domain consists of the capacitors and conductors
 
   // Electrodynamics
   Domain_Ele = Region[{Domain_Mag}];
 
   //Thermal Domain
   Vol_Thermal = Region[{Domain_Mag, AirTH, SoilTH}];
+
+  DomainDummy = Region[{12345}];
 
 }
 
@@ -68,6 +81,8 @@ Function {
   sigma[XLPE] = sig_xlpe;
   sigma[Soil] = sig_soil;
   sigma[Air] = 0.;
+  sigma[Inds] = sig_cu;
+  sigma[APLSheath] = sig_al;
 
   fT_cu[] = (1+alpha_cu*($1-Tref)); //$1 is current temperature in [K], alpha in [1/K]
   fT_al[] = (1+alpha_al*($1-Tref));
@@ -121,9 +136,10 @@ Function {
   //h[] = 7.371 + 6.43*v_wind^0.75; // 1, 10...Convection coefficient [W/(m^2K)]
 }
 
+//http://getdp.info/doc/texinfo/getdp.html#Constraint
 Constraint{
   //Electric Constraint
-  {Name ElectricScalarPotential;
+  {Name ElectricScalarPotential; //electric scalar potential gelijk stellen aan V0*cos(wt+phase)
     Case{
       {Region Ind_1; Value V0; TimeFunction F_Cos_wt_p[]{2*Pi*Freq, Pa};}
       {Region Ind_2; Value V0; TimeFunction F_Cos_wt_p[]{2*Pi*Freq, Pb};}
@@ -131,7 +147,7 @@ Constraint{
       {Region SurfaceGe0; Value 0;}
     }
   }
-  {Name ZeroElectricalScalarPotential;
+  {Name ZeroElectricalScalarPotential; //electric scalar potential op 0 zetten voor de inductors
   Case {
     For k In {1:3}
       {Region Ind~{k}; Value 0; }
@@ -172,3 +188,17 @@ Constraint{
   } */
 
 }
+
+Include "Jacobian_Integration.pro"; // Normally no modification is needed
+
+// The following files contain: basis functions, formulations, resolution, post-processing, post-operation
+// Some adaptations may be needed
+If (Flag_Analysis ==0)
+  Include "electrodynamic_formulation.pro";
+EndIf
+/* If (Flag_AnalysisType ==1)
+  Include "darwin_formulation.pro";
+EndIf
+If (Flag_AnalysisType > 1)
+  Include "magneto-thermal_formulation.pro";
+EndIf */
