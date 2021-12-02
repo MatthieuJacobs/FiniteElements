@@ -66,10 +66,12 @@ dinf = 5*d_tot; //electromagnetic domain
 depth_cable = 1.8; //[m] laying depth of the cable
 dinf_th = 12; //thermal analysis
 dinf_th_air = 12 - depth_cable;
-
+d_def = 10*mm;
 // Mesh
 DefineConstant[ s = {1., Name "Parameters/Global mesh size factor"}] ;
-
+DefineConstant[
+Flag_Defect = {0, Choices{0,1}, Name "{00Parameters/Defect}"}
+];
 // Define physical regions
 AIR_IN = 900;
 AIR_OUT = 901;
@@ -77,7 +79,7 @@ AIR_OUT = 901;
 WIRE = 1000;
 
 SEMI_IN = 2000;
-XLPE = 3000; DEFECT = 3001;
+XLPE = 3000; DEFECT = 3001; XLPE_DEFECT = 3002;
 SEMI_OUT = 4000;
 APL = 5000;
 POLYETHYLENE_SHEATH = 6000;

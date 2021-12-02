@@ -9,6 +9,8 @@ Mesh.ElementOrder = 1; // Can also be 2
 
 SetFactory("OpenCASCADE");
 
+
+
 x0 = 0; y0 = 0;
 x1 = d_cu+2*t_sc_in+2*t_sc_out+2*t_xlpe+2*t_poly_sheet+2*t_al+dis; y1 = 0;
 x2 = -x1; y2 = 0;
@@ -127,15 +129,24 @@ sur_ps2(2) = news; BooleanDifference(news) = {Surface{sur_ps_aux(2)}; Delete;}{S
 // Redefine names after BooleanFragments
 sur_wire = {1,2,3};
 sur_semi_in = {4,5,6};
-sur_xlpe = {7,8,9};
+
 sur_semi_out = {10,11,12};
 sur_al = {13,14,15};
-sur_ps_in = {23,25,26,28,29,30,31,32,33,34,35,36};
+sur_ps = {23,25,26,28,29,30,31,32,33,34,35,36};
 sur_steel_armour = 19;
 sur_air_in = {24,27};
 sur_pc = 20;
 sur_air = 21;
 sur_steel_pipe = 22;
+
+If (Flag_Defect)
+  sur_defect = news; Disk(news) = {d_cu/2+t_sc_in+2*d_def, 0,0, d_def/2};
+  sur_XLPE_defect() = {};
+  sur_XLPE_defect(0) = news; BooleanDifference(news) = {Surface{sur_xlpe(0)}; Delete;}{Surface{sur_defect};};
+  sur_xlpe = {8,9};
+Else
+  sur_xlpe = {7,8,9};
+EndIf
 //-- Around the cable --
 all_sur_cable = Surface{:};
 
@@ -168,10 +179,15 @@ Printf("",bnd_EMdom());
 c1 = d_tot/s;
 // characteristic length
 Characteristic Length { PointsOf{Surface{sur_pc,sur_steel_pipe};}} = c1/16;
-Characteristic Length { PointsOf{Surface{sur_ps_in(),sur_steel_armour};}} = c1/32;
+Characteristic Length { PointsOf{Surface{sur_ps(),sur_steel_armour};}} = c1/32;
 Characteristic Length { PointsOf{Line{bnd_EMdom(1)};}} = 2*c1;
 Characteristic Length { PointsOf{Surface{sur_airout};Line{bnd(0)};}} = 5*c1;
 Characteristic Length { PointsOf{Surface{sur_wire(),sur_semi_in(),sur_semi_out(),sur_xlpe(), sur_al()};}} = c1/64;
+
+If(Flag_Defect)
+  Characteristic Length{PointsOf{Surface{sur_defect};}} = c1/128;
+  Characteristic Length{PointsOf{Surface{sur_XLPE_defect};}} = c1/32;
+EndIf
 
 ////////////////////////////////////////////////////
 // Physical regions => Link to pro file and FE
@@ -181,24 +197,27 @@ Physical Surface("wire2", WIRE+1) = sur_wire(1);
 Physical Surface("wire3", WIRE+2) = sur_wire(2);
 
 Physical Surface("inner semiconductor", SEMI_IN) = sur_semi_in();
-Physical Surface("XLPE", XLPE) = sur_xlpe;
+
 Physical Surface("outer semiconductor", SEMI_OUT) = sur_semi_out();
 Physical Surface("Aluminium tape", APL) = sur_al();
-Physical Surface("Air in cable", AIR_IN) = {sur_air, sur_air_in()};
+Physical Surface("Air in cable", AIR_IN) = {sur_air(), sur_air_in()};
 Physical Surface("POLYETHYLENE_SHEATH", POLYETHYLENE_SHEATH) = sur_ps();
-Physical Surface("Steel Armour",STEEL_ARMOUR) = sur_steel_armour;
+Physical Surface("Steel Armour",STEEL_ARMOUR) = sur_steel_armour();
 
-Physical Surface("Steel pipe", STEEL_PIPE) = sur_steel_pipe;
-Physical Surface("POLYETHYLENE_COVER", POLYETHYLENE_COVER) = sur_pc;
+Physical Surface("Steel pipe", STEEL_PIPE) = sur_steel_pipe();
+Physical Surface("POLYETHYLENE_COVER", POLYETHYLENE_COVER) = sur_pc();
 
-Physical Surface("SOIL (EM)", SOIL_EM) = sur_EMdom;
-Physical Surface("SOIL_TH", SOIL_TH) = sur_soil;
-Physical Surface("Air above soil", AIR_OUT) = sur_airout;
+Physical Surface("SOIL (EM)", SOIL_EM) = sur_EMdom();
+Physical Surface("SOIL_TH", SOIL_TH) = sur_soil();
+Physical Surface("Air above soil", AIR_OUT) = sur_airout();
 
-/* If(Flag_defect_in_XLPE)
-  Physical Surface("Defect in XLPE (Phase 2)", DEFECT) = sur_defect;
-  Color Cyan {Surface{sur_defect};}
-EndIf */
+If(Flag_Defect)
+  Physical Surface("Defect in XLPE", DEFECT) = sur_defect();
+  Physical Surface("XLPE with defect", XLPE_DEFECT) = sur_XLPE_defect();
+  Physical Surface("XLPE without defect", XLPE) =  sur_xlpe();
+Else
+  Physical Surface("XLPE", XLPE) = sur_xlpe();
+EndIf
 
 Physical Line("Outer boundary (EM)", OUTBND_EM) = bnd_EMdom(1);
 Physical Line("Outer boundary (TH)", OUTBND_TH) = bnd();

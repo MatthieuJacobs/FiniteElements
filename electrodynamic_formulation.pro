@@ -110,8 +110,9 @@ PostOperation{
   { Name Ele_Maps; NameOfPostProcessing EleDyn_v;
     Operation {
       Print[ v,  OnElementsOf Domain_Ele, File "res/v.pos" ];
-      Print[ em, OnElementsOf Cable, Name "|E| [V/m]",  File "res/em.pos" ]; // Name is not compulsory, it may be adapted
-      Print[ dm, OnElementsOf Cable, Name "|D| [A/m²]", File "res/dm.pos" ];
+      Print[ e, OnElementsOf Domain_Ele, Name "|E| [V/m]",  File "res/em.pos" ]; // Name is not compulsory, it may be adapted
+      //Print[ dm, OnElementsOf Domain_Ele, Name "|D| [A/m²]", File "res/dm.pos" ];
+      //Print[jm, OnElementsOf Domain_Ele, Name "J", File "res/jtot.pos"];
       Print[ ElectricEnergy[Domain_Ele], OnGlobal, Format Table, StoreInVariable $We,
         SendToServer StrCat[po0,"0Electric energy"], File "res/energy.dat" ];
 

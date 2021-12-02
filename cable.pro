@@ -14,8 +14,8 @@ DefineConstant[
 Group{
   AirInCable = Region[{AIR_IN}];
   AirAboveSoil = Region[{AIR_OUT}];
-  DefectInXLPE = Region[{DEFECT}];
-  AirEM = Region[{AirInCable,DefectInXLPE}];
+  //DefectInXLPE = Region[{DEFECT}];
+  AirEM = Region[{AirInCable}]; //,DefectInXLPE}];
   AirTH = Region[{AirAboveSoil}];
   Air = Region[{AirEM,AirTH}];
 
@@ -37,25 +37,35 @@ Group{
   Ind_3 = Region[{(WIRE+2)}];
   Inds  = Region[{(WIRE+0), (WIRE+1), (WIRE+2)}];
 
+
+
   /* For k In {1:NbWires}
     Ind = Region[{(WIRE+k-1)}];
     Inds  += Region[{(WIRE+k-1)}];
   EndFor */
 
-  Cable = Region[{Inds, SemiconductorIn, SemiconductorOut, APLSheath, XLPE, Polyethylene}];
-  Cable += Region[{DefectInXLPE}];
+  //Cable = Region[{Inds, SemiconductorIn, SemiconductorOut, APLSheath, XLPE, Polyethylene}];
+  //Cable += Region[{DefectInXLPE}];
 
   // Magnetodynamics
   SurfaceGe0 = Region[{OUTBND_EM}];
   DomainCC_Mag = Region[{AirEM, Inds}]; //capacitor
-  DomainCC_Mag += Region[{SemiconductorIn,SemiconductorOut, XLPE, Polyethylene}];
+
   DomainC_Mag = Region[{Steel,APLSheath}]; //conductor
+
+  If (Flag_Defect)
+    XLPE_Defect = Region[{XLPE_DEFECT}];
+    Defect = Region[{DEFECT}];
+    DomainCC_Mag += Region[{SemiconductorIn,SemiconductorOut, XLPE, Polyethylene, XLPE_Defect, Defect}];
+  Else
+    DomainCC_Mag += Region[{SemiconductorIn,SemiconductorOut, XLPE, Polyethylene}];
+  EndIf
 
   DomainS0_Mag = Region[{}];  // If imposing source with js0[] //initial source
   DomainS_Mag = Region[{Inds}]; // If using Current_2D, it allows accouting ... //other sources
 
   DomainCWithI_Mag = Region[{}]; //inductors
-  Domain_Mag = Region[{DomainCC_Mag, DomainC_Mag}]; //magnetic domain consists of the capacitors and conductors
+  Domain_Mag = Region[{DomainCC_Mag, DomainC_Mag, SoilEM}]; //magnetic domain consists of the capacitors and conductors
 
   // Electrodynamics
   Domain_Ele = Region[{Domain_Mag}];
@@ -74,6 +84,16 @@ Function {
   nu[Region[{Air, Inds}]] = 1./mu0;
   nu[Region[{SemiconductorIn,SemiconductorOut,XLPE,APLSheath,Polyethylene,Soil}]] = 1./mu0;
   nu[Region[{Steel}]] = 1./(mu0*mu_st);
+  If (Flag_Defect)
+    nu[Region[{Defect}]] = 1./mu0;
+    sigma[Region[{Defect}]] = 0.;
+    epsilon[Region[{Defect}]] = eps0;
+    k[Defect] = kappa_air;
+    nu[Region[{XLPE_Defect}]] = 1./mu0;
+    sigma[Region[{XLPE_Defect}]] = sig_xlpe;
+    epsilon[Region[{XLPE_Defect}]] = eps0*e_xlpe;
+    k[XLPE_Defect] = kappa_xlpe;
+  EndIf
 
   sigma[Steel] = sig_st;
   sigma[Polyethylene] = sig_poly;
