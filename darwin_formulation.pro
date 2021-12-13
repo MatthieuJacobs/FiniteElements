@@ -160,8 +160,8 @@ PostOperation{
       // Name is not compulsory, it can be modified
       Print[ bm , OnElementsOf Domain_Mag,
         Name "|B| [T]", File "res/bm.pos" ];
-      Print[ jm , OnElementsOf DomainC_Mag,
-        Name "|j| [A/m^2] Al sheath", File "res/jm.pos" ];
+      Print[ jm , OnElementsOf Domain_Mag,
+        Name "|j| [A/m^2] ", File "res/jm.pos" ];
       Print[ dm , OnElementsOf DomainC_Mag,
         Name "|D| [A/m²]", File "res/dm.pos" ];
     }

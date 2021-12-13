@@ -32,17 +32,17 @@ Group{
   SoilTH = Region[{SOIL_TH}];
   Soil = Region[{SoilEM, SoilTH}];
 
-  Ind_1 = Region[{(WIRE+0)}];
-  Ind_2 = Region[{(WIRE+1)}];
-  Ind_3 = Region[{(WIRE+2)}];
-  Inds  = Region[{(WIRE+0), (WIRE+1), (WIRE+2)}];
+  //Ind_1 = Region[{(WIRE+0)}];
+  //Ind_2 = Region[{(WIRE+1)}];
+  //Ind_3 = Region[{(WIRE+2)}];
+  //Inds  = Region[{(WIRE+0), (WIRE+1), (WIRE+2)}];
 
 
 
-  /* For k In {1:NbWires}
-    Ind = Region[{(WIRE+k-1)}];
+  For k In {1:NbWires}
+    Ind~{k} = Region[{(WIRE+k-1)}];
     Inds  += Region[{(WIRE+k-1)}];
-  EndFor */
+  EndFor
 
   //Cable = Region[{Inds, SemiconductorIn, SemiconductorOut, APLSheath, XLPE, Polyethylene}];
   //Cable += Region[{DefectInXLPE}];
@@ -72,6 +72,11 @@ Group{
 
   //Thermal Domain
   Vol_Thermal = Region[{Domain_Mag, AirTH, SoilTH}];
+  Vol_QSource_Thermal = Region[{Inds}];
+  Vol_QSource0_Thermal = Region[{DomainC_Mag}];
+  Vol_QSourceB_Thermal = Region[{Domain_Mag}];
+
+  Domain_Thermal = Region[{Domain_Mag, AirTH, SoilTH}];
 
   DomainDummy = Region[{12345}];
 
@@ -101,19 +106,19 @@ Function {
   sigma[XLPE] = sig_xlpe;
   sigma[Soil] = sig_soil;
   sigma[Air] = 0.;
-  sigma[Inds] = sig_cu;
-  sigma[APLSheath] = sig_al;
+  //sigma[Inds] = sig_cu;
+  //sigma[APLSheath] = sig_al;
 
   fT_cu[] = (1+alpha_cu*($1-Tref)); //$1 is current temperature in [K], alpha in [1/K]
   fT_al[] = (1+alpha_al*($1-Tref));
 
-  /* If(!Flag_sigma_funcT)
+  If(!Flag_sigma_funcT)
     sigma[Inds]      = sig_cu;
     sigma[APLSheath] = sig_al;
   Else
     sigma[Inds]      = sig_cu/fT_cu[$1];
     sigma[APLSheath] = sig_al/fT_al[$1];
-  EndIf */
+  EndIf
 
   epsilon[Region[{Air, Inds, APLSheath, Soil, Steel}]] = eps0;
   epsilon[Region[{Polyethylene}]] = eps0*e_poly;
@@ -132,8 +137,8 @@ Function {
   Sc[] = SurfaceArea[];
 
   //second order calculation
-  //Flag_Degree_a = deg2_hierarchical ? 2:1;
-  //Flag_Degree_v = deg2_hierarchical ? 2:1;
+  Flag_Degree_a = 2; //deg2_hierarchical =
+  Flag_Degree_v = 1; //deg2_hierarchical =
 
   //thermal Parameters
   Tambient[] = Tamb; // [K]
@@ -153,7 +158,7 @@ Function {
 
   //* force convection on ground surface due to wind: h = 7.371 + 6.43*v^0.75
   //*Not used here
-  //h[] = 7.371 + 6.43*v_wind^0.75; // 1, 10...Convection coefficient [W/(m^2K)]
+ h[] = 7.371; //+ 6.43*v_wind^0.75; // 1, 10...Convection coefficient [W/(m^2K)]
 }
 
 //http://getdp.info/doc/texinfo/getdp.html#Constraint
@@ -216,9 +221,9 @@ Include "Jacobian_Integration.pro"; // Normally no modification is needed
 If (Flag_Analysis ==0)
   Include "electrodynamic_formulation.pro";
 EndIf
-/* If (Flag_AnalysisType ==1)
+If (Flag_Analysis ==1)
   Include "darwin_formulation.pro";
 EndIf
-If (Flag_AnalysisType > 1)
+If (Flag_Analysis > 1)
   Include "magneto-thermal_formulation.pro";
-EndIf */
+EndIf

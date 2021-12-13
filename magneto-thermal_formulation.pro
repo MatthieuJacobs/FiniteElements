@@ -73,13 +73,12 @@ Formulation {
       Galerkin { [ -js0[] , {a} ];
         In DomainS0_Mag; Jacobian Vol; Integration I1; }
 
-      // or you use the constraints => allows accounting for sigma[{T}]
+    // or you use the constraints => allows accounting for sigma[{T}]
       Galerkin { [ -Ns[]/Sc[] * Dof{ir}, {a} ] ;
         In DomainS_Mag ; Jacobian Vol ; Integration I1 ; }
-      Galerkin { DtDof [ Ns[]/Sc[] * Dof{a}, {ir} ] ;
+        Galerkin { DtDof [ Ns[]/Sc[] * Dof{a}, {ir} ] ;
         In DomainS_Mag ; Jacobian Vol ; Integration I1 ; }
-
-      Galerkin { [ Ns[]/Sc[] / sigma[{T}] * Ns[]/Sc[]* Dof{ir} , {ir} ] ; // resistance term
+       Galerkin { [ Ns[]/Sc[] / sigma[{T}] * Ns[]/Sc[]* Dof{ir} , {ir} ] ; // resistance term
         In DomainS_Mag ; Jacobian Vol ; Integration I1 ; }
       //GlobalTerm { [ Rdc * Dof{Is} , {Is} ] ; In DomainS ; } // OR this resitance term
       GlobalTerm { [ Dof{Us}, {Is} ] ; In DomainS_Mag ; }

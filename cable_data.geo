@@ -71,7 +71,9 @@ d_def = 10*mm;
 DefineConstant[ s = {1., Name "Parameters/Global mesh size factor"}] ;
 DefineConstant[
 Flag_Defect = {0, Choices{0,1}, Name "{00Parameters/Defect}"}
+Flag_sigma_funcT = {0, Choices{0,1}, Name "{01Parameters/Sigma F(T)}"}
 ];
+
 // Define physical regions
 AIR_IN = 900;
 AIR_OUT = 901;
