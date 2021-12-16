@@ -39,7 +39,7 @@ Formulation {
 
 }
 
-Resolution {
+/* Resolution {
 
   { Name Electrodynamics;
     System {
@@ -55,7 +55,7 @@ Resolution {
     }
   }
 
-}
+} */
 
 
 PostProcessing {

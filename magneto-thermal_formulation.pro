@@ -108,11 +108,11 @@ Formulation {
       Galerkin { [ -0.5/sigma[{T}] * <ir>[ SquNorm[Ns[]/Sc[]*{ir}] ], {T} ];
         In Vol_QSourceB_Thermal; Integration I1; Jacobian Vol;  }
 
-      // Convection boundary condition
-      Galerkin { [ h[] * Dof{T} , {T} ] ;
+      // Convection boundary condition //hebben wij niet
+      /* Galerkin { [ h[] * Dof{T} , {T} ] ;
 	In Sur_Convection_Thermal; Jacobian Sur ; Integration I1 ; }
       Galerkin { [-h[] * Tambient[] , {T} ] ;
-        In Sur_Convection_Thermal ; Jacobian Sur ; Integration I1 ; }
+        In Sur_Convection_Thermal ; Jacobian Sur ; Integration I1 ; } */
     }
   }
 
