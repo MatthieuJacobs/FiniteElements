@@ -28,7 +28,7 @@ Group{
   SteelP = Region[{STEEL_PIPE}];
   Steel = Region[{SteelA, SteelP}];
 
-  SoilEM = Region[{SOIL_EM}]; //wordt niet gebruikt bij EM?
+  SoilEM = Region[{SOIL_EM}];
   SoilTH = Region[{SOIL_TH}];
   Soil = Region[{SoilEM, SoilTH}];
 
@@ -37,7 +37,7 @@ Group{
   //Ind_3 = Region[{(WIRE+2)}];
   //Inds  = Region[{(WIRE+0), (WIRE+1), (WIRE+2)}];
 
-
+  Sur_Dirichlet_Thermal = Region[{AirTH,SoilTH}];
 
   For k In {1:NbWires}
     Ind~{k} = Region[{(WIRE+k-1)}];
@@ -45,6 +45,7 @@ Group{
   EndFor
 
   Cable = Region[{Inds, SemiconductorIn, SemiconductorOut, APLSheath, XLPE, Polyethylene}];
+  //Cable += Region[{DefectInXLPE}];
 
   // Magnetodynamics
   SurfaceGe0 = Region[{OUTBND_EM}];
@@ -56,13 +57,12 @@ Group{
     XLPE_Defect = Region[{XLPE_DEFECT}];
     Defect = Region[{DEFECT}];
     DomainCC_Mag += Region[{SemiconductorIn,SemiconductorOut, XLPE, Polyethylene, XLPE_Defect, Defect}];
-    Cable += Region[{Defect}];
   Else
     DomainCC_Mag += Region[{SemiconductorIn,SemiconductorOut, XLPE, Polyethylene}];
   EndIf
 
-  DomainS0_Mag = Region[{Inds}];  // If imposing source with js0[] //initial source
-  DomainS_Mag = Region[{APLSheath}]; // If using Current_2D, it allows accouting ... //other sources
+  DomainS0_Mag = Region[{}];  // If imposing source with js0[] //initial source
+  DomainS_Mag = Region[{Inds}]; // If using Current_2D, it allows accouting ... //other sources
 
   DomainCWithI_Mag = Region[{}]; //inductors
   Domain_Mag = Region[{DomainCC_Mag, DomainC_Mag, SoilEM}]; //magnetic domain consists of the capacitors and conductors
@@ -72,12 +72,11 @@ Group{
 
   //Thermal Domain
   Vol_Thermal = Region[{Domain_Mag, AirTH, SoilTH}];
-  Vol_QSource_Thermal = Region[{DomainC_Mag}];
   Vol_QSource0_Thermal = Region[{Inds}];
+  Vol_QSource_Thermal = Region[{DomainC_Mag}];
   Vol_QSourceB_Thermal = Region[{Domain_Mag}];
 
   Domain_Thermal = Region[{Domain_Mag, AirTH, SoilTH}];
-  Sur_Dirichlet_Thermal = Region[{SoilTH, AirTH}]; //niet zeker van
 
   DomainDummy = Region[{12345}];
 
