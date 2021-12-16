@@ -158,7 +158,7 @@ sur_EMdom = news - 1;
 
 //thermal analysis domain
 //Rectangle: the 3 first expressions define the lower-left corner; the next 2 define the width and height.
-sur_soil = news; Rectangle(news) = {-dinf_th, -dinf_th, 0, 2*dinf_th, dinf_th + depth_cable};
+sur_soil = news; Rectangle(news) = {-dinf_th, -dinf_th, 0., 2*dinf_th, dinf_th + depth_cable};
 BooleanDifference(news) = {Surface{sur_soil}; Delete;}{Surface{all_sur_cable()};};
 sur_soil = news - 1;
 
@@ -171,7 +171,7 @@ bnd() = CombinedBoundary{Surface{all_sur_after_frag()};};
 Printf("",bnd());
 
 //sur_EMdom = {68,69};
-
+sur_soil = {88};
 bnd_EMdom() = CombinedBoundary{Surface{sur_EMdom};};
 Printf("",bnd_EMdom());
 
@@ -180,9 +180,8 @@ c1 = d_tot/s;
 // characteristic length
 Characteristic Length { PointsOf{Surface{sur_pc,sur_steel_pipe};}} = c1/16;
 Characteristic Length { PointsOf{Surface{sur_ps(),sur_steel_armour};}} = c1/32;
-
 Characteristic Length { PointsOf{Line{bnd_EMdom(1)};}} = 2*c1;
-Characteristic Length { PointsOf{Surface{sur_airout()};Line{bnd(0)};}} = 5*c1;
+Characteristic Length { PointsOf{Surface{sur_airout};Line{bnd(0)};}} = 5*c1;
 Characteristic Length { PointsOf{Surface{sur_wire(),sur_semi_in(),sur_semi_out(),sur_xlpe(), sur_al()};}} = c1/64;
 
 If(Flag_Defect)
@@ -198,6 +197,7 @@ Physical Surface("wire2", WIRE+1) = sur_wire(1);
 Physical Surface("wire3", WIRE+2) = sur_wire(2);
 
 Physical Surface("inner semiconductor", SEMI_IN) = sur_semi_in();
+
 Physical Surface("outer semiconductor", SEMI_OUT) = sur_semi_out();
 Physical Surface("Aluminium tape", APL) = sur_al();
 Physical Surface("Air in cable", AIR_IN) = {sur_air(), sur_air_in()};
@@ -210,7 +210,6 @@ Physical Surface("POLYETHYLENE_COVER", POLYETHYLENE_COVER) = sur_pc();
 Physical Surface("SOIL (EM)", SOIL_EM) = sur_EMdom();
 Physical Surface("SOIL_TH", SOIL_TH) = sur_soil();
 Physical Surface("Air above soil", AIR_OUT) = sur_airout();
-
 
 If(Flag_Defect)
   Physical Surface("Defect in XLPE", DEFECT) = sur_defect();

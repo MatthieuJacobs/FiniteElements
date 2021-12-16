@@ -35,7 +35,7 @@ kappa_poly = 0.46;
 kappa_sc = 10;
 kappa_xlpe = 0.46;
 kappa_soil = 0.4;
-kappa_al = 0.16;
+kappa_al = 239;
 kappa_air = 0.024;
 
 // alpha values [1/K]

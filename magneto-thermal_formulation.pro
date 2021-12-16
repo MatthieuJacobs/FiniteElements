@@ -4,18 +4,18 @@ FunctionSpace {
     BasisFunction {
       { Name se; NameOfCoef ae; Function BF_PerpendicularEdge;
         Support Domain_Mag; Entity NodesOf[ All ]; }
-      If (Flag_Degree_a == 2)
+/*      If (Flag_Degree_a == 2)
         { Name se2; NameOfCoef ae2; Function BF_PerpendicularEdge_2E;
           Support Domain_Mag; Entity EdgesOf[ All ]; }
-      EndIf
+      EndIf*/
     }
     Constraint {
       { NameOfCoef ae;
         EntityType NodesOf; NameOfConstraint MagneticVectorPotential_2D; }
-      If (Flag_Degree_a == 2)
+    /*  If (Flag_Degree_a == 2)
 	{ NameOfCoef ae2; // Only OK if homogeneous BC, otherwise specify zero-BC
           EntityType EdgesOf; NameOfConstraint MagneticVectorPotential_2D; }
-      EndIf
+      EndIf*/
     }
   }
 
@@ -108,18 +108,17 @@ Formulation {
       Galerkin { [ -0.5/sigma[{T}] * <ir>[ SquNorm[Ns[]/Sc[]*{ir}] ], {T} ];
         In Vol_QSourceB_Thermal; Integration I1; Jacobian Vol;  }
 
-      // Convection boundary condition //hebben wij niet
-      /* Galerkin { [ h[] * Dof{T} , {T} ] ;
+      // Convection boundary condition
+      Galerkin { [ h[] * Dof{T} , {T} ] ;
 	In Sur_Convection_Thermal; Jacobian Sur ; Integration I1 ; }
       Galerkin { [-h[] * Tambient[] , {T} ] ;
-        In Sur_Convection_Thermal ; Jacobian Sur ; Integration I1 ; } */
+        In Sur_Convection_Thermal ; Jacobian Sur ; Integration I1 ; }
     }
   }
 
 }
 
 Resolution {
-
   { Name Magneto_thermal;
     System {
       { Name Sys_Mag; NameOfFormulation Darwin_a_2D;
@@ -280,11 +279,11 @@ PostOperation{
         Name "T [°C] around cable", File "res/T.pos" ];
       Print[ TinC , OnElementsOf Cable,
         Name "T [°C] cable", File "res/Tcable.pos" ];
-      Print[ q , OnElementsOf Region[{Vol_Thermal,-Cable}], // all the thermal domain but the cable
+    /*  Print[ q , OnElementsOf Region[{Vol_Thermal,-Cable}], // all the thermal domain but the cable
         Name "heat flux [W/m²] around cable", File "res/q.pos" ];
       Print[ q , OnElementsOf Cable,
         Name "heat flux [W/m²] cable", File "res/qcable.pos" ];
-
+*/
     }
   }
 

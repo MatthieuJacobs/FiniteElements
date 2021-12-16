@@ -9,8 +9,13 @@ DefineConstant[
       3="Magneto-thermal (nonlinear)"
     },
     Name "{00Parameters/00Type of analysis", Highlight "Blue"}
-];
+   Flag_sigma_funcT = (Flag_Analysis==3),
+   c_ = {"-solve -v2", Name "GetDP/9ComputeCommand", Visible 1},
+   p_ = {"", Name "GetDP/2PostOperationChoices", Visible 1, Closed 1}
 
+ nb_iter = 30,
+ relaxation_factor = 1,
+ stop_criterion = 1e-6];
 Group{
   AirInCable = Region[{AIR_IN}];
   AirAboveSoil = Region[{AIR_OUT}];
@@ -37,46 +42,47 @@ Group{
   //Ind_3 = Region[{(WIRE+2)}];
   //Inds  = Region[{(WIRE+0), (WIRE+1), (WIRE+2)}];
 
-  Sur_Dirichlet_Thermal = Region[{AirTH,SoilTH}];
+
 
   For k In {1:NbWires}
     Ind~{k} = Region[{(WIRE+k-1)}];
     Inds  += Region[{(WIRE+k-1)}];
   EndFor
 
-  Cable = Region[{Inds, SemiconductorIn, SemiconductorOut, APLSheath, XLPE, Polyethylene}];
+  Cable = Region[{Inds, SemiconductorIn, SemiconductorOut, APLSheath, XLPE, Polyethylene, AirEM, Steel}];
   //Cable += Region[{DefectInXLPE}];
 
   // Magnetodynamics
   SurfaceGe0 = Region[{OUTBND_EM}];
-  DomainCC_Mag = Region[{AirEM, Inds}]; //capacitor
+  //DomainCC_Mag = Region[{SoilEM,Inds,APLSheath,XLPE,SemiconductorIn,SemiconductorOut,Polyethylene}]; //capacitor
 
-  DomainC_Mag = Region[{Steel,APLSheath}]; //conductor
+  DomainC_Mag = Region[{Inds,Steel,APLSheath}]; //conductor
 
   If (Flag_Defect)
     XLPE_Defect = Region[{XLPE_DEFECT}];
     Defect = Region[{DEFECT}];
-    DomainCC_Mag += Region[{SemiconductorIn,SemiconductorOut, XLPE, Polyethylene, XLPE_Defect, Defect}];
+    DomainCC_Mag = Region[{Inds, SemiconductorIn,SemiconductorOut, XLPE, Polyethylene, XLPE_Defect, Defect, AirEM}];
   Else
-    DomainCC_Mag += Region[{SemiconductorIn,SemiconductorOut, XLPE, Polyethylene}];
+    DomainCC_Mag = Region[{Inds,SemiconductorIn,SemiconductorOut, XLPE, Polyethylene, AirEM}];
   EndIf
 
   DomainS0_Mag = Region[{}];  // If imposing source with js0[] //initial source
   DomainS_Mag = Region[{Inds}]; // If using Current_2D, it allows accouting ... //other sources
 
   DomainCWithI_Mag = Region[{}]; //inductors
-  Domain_Mag = Region[{DomainCC_Mag, DomainC_Mag, SoilEM}]; //magnetic domain consists of the capacitors and conductors
+  Domain_Mag = Region[{DomainCC_Mag, DomainC_Mag}]; //magnetic domain consists of the capacitors and conductors
 
   // Electrodynamics
   Domain_Ele = Region[{Domain_Mag}];
 
   //Thermal Domain
-  Vol_Thermal = Region[{Domain_Mag, AirTH, SoilTH}];
-  Vol_QSource0_Thermal = Region[{Inds}];
+  Vol_Thermal = Region[{Cable, Soil, AirAboveSoil}];
+  Vol_QSource0_Thermal = Region[{DomainS0_Mag}];
   Vol_QSource_Thermal = Region[{DomainC_Mag}];
-  Vol_QSourceB_Thermal = Region[{Domain_Mag}];
-
-  Domain_Thermal = Region[{Domain_Mag, AirTH, SoilTH}];
+  Vol_QSourceB_Thermal = Region[{DomainS_Mag}];
+  Sur_Dirichlet_Thermal = Region[{OUTBND_TH}];
+  Sur_Convection_Thermal = Region[{INTERFACE_AIR_SOIL}];
+  Domain_Thermal = Region[{Vol_Thermal,Sur_Convection_Thermal}];
 
   DomainDummy = Region[{12345}];
 
@@ -127,8 +133,8 @@ Function {
 
   Freq = 50;
   Pa = 0.; Pb = -120./180.*Pi; Pc = -240./180.*Pi; // fases in cable
-  I = 1540; // maximum value current in data sheet
-  V0 = 550000;
+  I =  1040; // maximum value current in data sheet
+  V0 = 500000;
   js0[Ind_1] = Vector [0,0,1] * I / SurfaceArea[] * F_Cos_wt_p[]{2*Pi*Freq, Pa}; //current densities
   js0[Ind_2] = Vector [0,0,1] * I / SurfaceArea[] * F_Cos_wt_p[]{2*Pi*Freq, Pb};
   js0[Ind_3] = Vector [0,0,1] * I / SurfaceArea[] * F_Cos_wt_p[]{2*Pi*Freq, Pc};
@@ -142,7 +148,7 @@ Function {
 
   //thermal Parameters
   Tambient[] = Tamb; // [K]
-
+ _deg2_hierarchical = 0;
   //thermal conductivities [W/(mK)]
   k[Steel] = kappa_st;
   k[APLSheath] = kappa_al;
@@ -158,7 +164,8 @@ Function {
 
   //* force convection on ground surface due to wind: h = 7.371 + 6.43*v^0.75
   //*Not used here
- h[] = 7.371; //+ 6.43*v_wind^0.75; // 1, 10...Convection coefficient [W/(m^2K)]
+ v_wind = 1;
+ h[] = 0;//7.371 + 6.43*v_wind^0.75; // 1, 10...Convection coefficient [W/(m^2K)]
 }
 
 //http://getdp.info/doc/texinfo/getdp.html#Constraint
@@ -172,14 +179,14 @@ Constraint{
       {Region SurfaceGe0; Value 0;}
     }
   }
-  {Name ZeroElectricalScalarPotential; //electric scalar potential op 0 zetten voor de inductors
+  /*{Name ZeroElectricalScalarPotential; //electric scalar potential op 0 zetten voor de inductors
   Case {
     For k In {1:3}
       {Region Ind~{k}; Value 0; }
       EndFor
       {Region SurfaceGe0; Value 0;}
     }
-  }
+  }*/
 
   // Magnetic constraints
   {Name MagneticVectorPotential_2D;

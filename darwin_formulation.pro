@@ -4,18 +4,18 @@ FunctionSpace {
     BasisFunction {
       { Name se; NameOfCoef ae; Function BF_PerpendicularEdge;
         Support Domain_Mag; Entity NodesOf[ All ]; }
-      If (Flag_Degree_a == 2)
+      /*If (Flag_Degree_a == 2)
         { Name se2; NameOfCoef ae2; Function BF_PerpendicularEdge_2E;
           Support Domain_Mag; Entity EdgesOf[ All ]; }
-      EndIf
+      EndIf*/
     }
     Constraint {
       { NameOfCoef ae;
         EntityType NodesOf; NameOfConstraint MagneticVectorPotential_2D; }
-      If (Flag_Degree_a == 2)
+    /*  If (Flag_Degree_a == 2)
 	{ NameOfCoef ae2; // Only OK if homogeneous BC, otherwise specify zero-BC
           EntityType EdgesOf; NameOfConstraint MagneticVectorPotential_2D; }
-      EndIf
+      EndIf*/
     }
   }
 
@@ -160,8 +160,8 @@ PostOperation{
       // Name is not compulsory, it can be modified
       Print[ bm , OnElementsOf Domain_Mag,
         Name "|B| [T]", File "res/bm.pos" ];
-      Print[ jm , OnElementsOf Domain_Mag,
-        Name "|j| [A/m^2] ", File "res/jm.pos" ];
+      Print[ jm , OnElementsOf DomainC_Mag,
+        Name "|j| [A/m^2] Al sheath", File "res/jm.pos" ];
       Print[ dm , OnElementsOf DomainC_Mag,
         Name "|D| [A/m²]", File "res/dm.pos" ];
     }
